@@ -1,0 +1,19 @@
+hydra:
+  run:
+    dir: ${hydra.runtime.cwd}
+
+dataloader:
+  class: data.data_loader.MnistDataLoader
+  params:
+    data_dir: datasets/
+    batch_size: 32
+    shuffle: True
+    validation_split: 0.0
+    num_workers: 1
+    training: True
+
+model:
+  class: model.mnist.MNISTModel
+
+experiment:
+  lr: 0.002
