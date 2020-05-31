@@ -13,24 +13,17 @@ def main(cfg):
         filepath=cfg.experiment.output_dir,
         save_top_k=True,
         verbose=True,
-        monitor='val_acc',
-        mode='max',
+        monitor='loss',
+        mode='min',
         prefix=''
     )
 
     if cfg.experiment.device == "cuda":
         os.environ['CUDA_VISIBLE_DEVICES'] = cfg.experiment.device_id
 
-
-
     model = hydra.utils.instantiate(cfg.model)
     experiment = MNISTExperiment(model=model,
                                  hparams=cfg.experiment)
-    if not experiment.ds_val:
-        delattr(type(experiment), 'val_dataloader')
-        delattr(type(experiment), 'validation_step')
-        delattr(type(experiment), 'validation_epoch_end')
-
     num_gpu = torch.cuda.device_count()
     print(cfg.pretty())
     runner = pl.Trainer(max_epochs=cfg.experiment.max_epoch,

@@ -4,6 +4,8 @@ from torchvision.datasets import MNIST
 from torchvision import transforms
 from torch.utils.data import DataLoader
 from argparse import Namespace
+from hydra import utils
+import os
 
 
 class MNISTExperiment(pl.LightningModule):
@@ -40,8 +42,11 @@ class MNISTExperiment(pl.LightningModule):
             transforms.ToTensor(),
             transforms.Normalize((0.1307,), (0.3081,))
         ])
+        wording_dir = utils.get_original_cwd()
+        root_dir = os.path.join(wording_dir, self.hparams.data_dir)
+        print(root_dir)
         mnist_train = MNIST(
-            root=self.hparams.experient.data_dir,
+            root=root_dir,
             train=True,
             download=True,
             transform=train_transform,
@@ -57,8 +62,10 @@ class MNISTExperiment(pl.LightningModule):
             transforms.ToTensor(),
             transforms.Normalize((0.1307,), (0.3081,))
         ])
+        wording_dir = utils.get_original_cwd()
+        root_dir = os.path.join(wording_dir, self.hparams.data_dir)
         mnist_test = MNIST(
-            root=self.hparams.experient.data_dir,
+            root=root_dir,
             train=False,
             download=True,
             transform=test_transform,
