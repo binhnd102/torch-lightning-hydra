@@ -26,6 +26,11 @@ def main(cfg):
     model = hydra.utils.instantiate(cfg.model)
     experiment = MNISTExperiment(model=model,
                                  hparams=cfg.experiment)
+    if not experiment.ds_val:
+        delattr(type(experiment), 'val_dataloader')
+        delattr(type(experiment), 'validation_step')
+        delattr(type(experiment), 'validation_epoch_end')
+
     num_gpu = torch.cuda.device_count()
     print(cfg.pretty())
     runner = pl.Trainer(max_epochs=cfg.experiment.max_epoch,

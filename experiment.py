@@ -45,11 +45,11 @@ class MNISTExperiment(pl.LightningModule):
         return {"batch_test_acc": accuracy}
 
     def test_epoch_end(self, outputs):
-        accuracy = torch.stack([x['batch_val_acc'].float() for x in outputs]).mean()
-        return {"log": {"val_acc": accuracy}}
+        accuracy = torch.stack([x['batch_test_acc'].float() for x in outputs]).mean()
+        return {"log": {"test_acc": accuracy}}
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.model.parameters(), lr=self.hparams.lr)
+        return torch.optim.Adam(self.model.parameters())
 
     def train_dataloader(self):
         return DataLoader(self.ds_train,
@@ -66,4 +66,4 @@ class MNISTExperiment(pl.LightningModule):
     def test_dataloader(self):
         return DataLoader(self.ds_test,
                           num_workers=self.hparams.num_workers,
-                          batch_size=self.hparams.batch_size)
+                          batch_size=self.hparams.test_batch_size)

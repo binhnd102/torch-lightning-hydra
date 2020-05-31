@@ -7,12 +7,13 @@ model:
 
 experiment:
   dataset: MNIST
-  lr: 0.002
+  lr: 1.0
   data_dir: datasets/
-  batch_size: 32
-  validation_split: 0.3
-  num_workers: 2
-  max_epoch: 100
+  batch_size: 64
+  test_batch_size: 1000
+  validation_split: 0.0
+  num_workers: 4
+  max_epoch: 14
   output_dir: checkpoints/{epoch}_{val_acc:.2f}
   device: cuda
   device_id: '0'

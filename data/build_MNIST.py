@@ -40,11 +40,13 @@ def build_MNIST(data_dir, valid_size=0.3):
     assert ((valid_size >= 0) and (valid_size <= 1)), error_msg
     # define transforms
     valid_transform = transforms.Compose([
-        transforms.ToTensor()
+        transforms.ToTensor(),
+        transforms.Normalize((0.1307,), (0.3081,))
     ])
     # Set transformation
     train_transform = transforms.Compose([
-        transforms.ToTensor()
+        transforms.ToTensor(),
+        transforms.Normalize((0.1307,), (0.3081,))
     ])
     # load the dataset
     # load the same training set but different transformation
@@ -52,14 +54,16 @@ def build_MNIST(data_dir, valid_size=0.3):
         root=data_dir, train=True,
         download=True, transform=train_transform,
     )
+    if valid_size != 0.0:
+        data, targets = mnist_train.data, mnist_train.targets
 
-    data, targets = mnist_train.data, mnist_train.targets
+        X_train, X_test, y_train, y_test = train_test_split(data, targets, test_size=valid_size)
 
-    X_train, X_test, y_train, y_test = train_test_split(data, targets, test_size=valid_size)
+        mnist_train = ImageDataset(X_train, y_train, transform=train_transform)
 
-    mnist_train = ImageDataset(X_train, y_train, transform=train_transform)
-
-    mnist_val = ImageDataset(X_test, y_test, transform=valid_transform)
+        mnist_val = ImageDataset(X_test, y_test, transform=valid_transform)
+    else:
+        mnist_val = None
 
     mnist_test = datasets.MNIST(root=data_dir, train=False, transform=valid_transform)
     return mnist_train, mnist_val, mnist_test
