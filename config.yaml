@@ -2,18 +2,14 @@ hydra:
   run:
     dir: ${hydra.runtime.cwd}
 
-dataloader:
-  class: data.data_loader.MnistDataLoader
-  params:
-    data_dir: datasets/
-    batch_size: 32
-    shuffle: True
-    validation_split: 0.0
-    num_workers: 1
-    training: True
-
 model:
   class: model.mnist.MNISTModel
 
 experiment:
+  dataset: MNIST
   lr: 0.002
+  data_dir: datasets/
+  batch_size: 32
+  validation_split: 0.3
+  num_workers: 2
+  max_epoch: 100
