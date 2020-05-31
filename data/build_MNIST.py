@@ -8,7 +8,6 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, random_split
 
 
-
 class ImageDataset(Dataset):
     def __init__(self, data, targets, transform=None):
         self.data = data

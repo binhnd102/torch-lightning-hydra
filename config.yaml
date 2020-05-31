@@ -13,3 +13,6 @@ experiment:
   validation_split: 0.3
   num_workers: 2
   max_epoch: 100
+  output_dir: checkpoints/{epoch}_{val_acc:.2f}
+  device: cuda
+  device_id: [0]
