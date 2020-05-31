@@ -1,10 +1,9 @@
 import torch
 import pytorch_lightning as pl
-from data import build_dataset
+from torchvision.datasets import MNIST
+from torchvision import transforms
 from torch.utils.data import DataLoader
 from argparse import Namespace
-from sklearn.metrics import accuracy_score
-from collections import OrderedDict
 
 
 class MNISTExperiment(pl.LightningModule):
@@ -13,9 +12,6 @@ class MNISTExperiment(pl.LightningModule):
         super().__init__()
         self.model = model
         self.hparams = Namespace(**hparams)
-        self.ds_train, self.ds_val, self.ds_test = build_dataset(self.hparams.dataset,
-                                                                 self.hparams.data_dir,
-                                                                 self.hparams.validation_split)
 
     def forward(self, x):
         return self.model(x)
@@ -24,18 +20,6 @@ class MNISTExperiment(pl.LightningModule):
         x, y = batch
         loss = self.model.loss_func(self(x), y)
         return {'loss': loss}
-
-    def validation_step(self, batch, batch_nb):
-        x, y = batch
-        output = self(x)
-        pred = output.argmax(dim=1, keepdim=True)
-        accuracy = pred.eq(y.view_as(pred)).sum() / (x.shape[0] * 1.0)
-        return {"batch_val_acc": accuracy}
-
-    def validation_epoch_end(self, outputs):
-        accuracy = torch.stack([x['batch_val_acc'].float() for x in outputs]).mean()
-        # Pass the accuracy to the `DictLogger` via the `'log'` key.
-        return {"log": {"val_acc": accuracy}}
 
     def test_step(self, batch, batch_nb):
         x, y = batch
@@ -52,18 +36,33 @@ class MNISTExperiment(pl.LightningModule):
         return torch.optim.Adam(self.model.parameters())
 
     def train_dataloader(self):
-        return DataLoader(self.ds_train,
+        train_transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.1307,), (0.3081,))
+        ])
+        mnist_train = MNIST(
+            root=self.hparams.experient.data_dir,
+            train=True,
+            download=True,
+            transform=train_transform,
+        )
+        return DataLoader(mnist_train,
                           num_workers=self.hparams.num_workers,
                           batch_size=self.hparams.batch_size,
                           shuffle=True)
 
-    def val_dataloader(self):
-        return DataLoader(self.ds_val,
-                          num_workers=self.hparams.num_workers,
-                          batch_size=self.hparams.batch_size,
-                          shuffle=False)
 
     def test_dataloader(self):
-        return DataLoader(self.ds_test,
+        test_transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.1307,), (0.3081,))
+        ])
+        mnist_test = MNIST(
+            root=self.hparams.experient.data_dir,
+            train=False,
+            download=True,
+            transform=test_transform,
+        )
+        return DataLoader(mnist_test,
                           num_workers=self.hparams.num_workers,
                           batch_size=self.hparams.test_batch_size)
