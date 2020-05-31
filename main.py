@@ -3,7 +3,7 @@ import hydra
 from experiment import MNISTExperiment
 from pytorch_lightning.callbacks import ModelCheckpoint
 import os
-# DEFAULTS used by the Trainer
+import torch
 
 
 @hydra.main(config_path="config.yaml")
@@ -22,10 +22,11 @@ def main(cfg):
         os.environ['CUDA_VISIBLE_DEVICES'] = cfg.experiment.device_id
 
 
+
     model = hydra.utils.instantiate(cfg.model)
     experiment = MNISTExperiment(model=model,
                                  hparams=cfg.experiment)
-    num_gpu = 0 if cfg.experiment.device == 'cpu' else len(cfg.experiment.device_id)
+    num_gpu = torch.cuda.device_count()
     print(cfg.pretty())
     runner = pl.Trainer(max_epochs=cfg.experiment.max_epoch,
                         checkpoint_callback=checkpoint_callback,
